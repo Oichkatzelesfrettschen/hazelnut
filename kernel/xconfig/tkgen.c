@@ -96,6 +96,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #include "tkparse.h"
 
 
@@ -197,6 +199,34 @@ void global( const char *var )
     printf( "\tglobal %s; vfix %s\n", var, var );
 }
 
+/*
+ * Emit global declarations for all variables referenced in a condition
+ * chain.  This deduplicates logic shared by several code paths.
+ */
+static void declare_condition_globals(struct condition *cond)
+{
+    for (; cond != NULL; cond = cond->next)
+    {
+        switch (cond->op)
+        {
+        case op_variable:
+            global(cond->str);
+            break;
+
+        case op_kvariable:
+            if (!cond->cfg->global_written)
+            {
+                cond->cfg->global_written = 1;
+                global(cond->cfg->optionname);
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
 
 
 /*
@@ -209,28 +239,9 @@ void generate_if( struct kconfig * cfg, struct condition * ocond,
     struct condition * cond;
 
     /*
-     * First write any global declarations we need for this conditional.
+     * Declare globals referenced in the conditional chain.
      */
-    for ( cond = ocond; cond != NULL; cond = cond->next )
-    {
-	switch ( cond->op )
-	{
-	default:
-	    break;
-
-	case op_variable:
-	    global( cond->str );
-	    break;
-
-	case op_kvariable:
-	    if ( ! cond->cfg->global_written )
-	    {
-		cond->cfg->global_written = 1;
-		global( cond->cfg->optionname );
-	    }
-	    break;
-	}
-    }
+    declare_condition_globals(ocond);
 
     /*
      * Now write this option.
@@ -422,26 +433,7 @@ void generate_writeconfig( struct kconfig * cfg )
     /*
      * Generate global declarations for the condition chain.
      */
-    for ( cond = cfg->cond; cond != NULL; cond = cond->next )
-    {
-	switch( cond->op )
-	{
-	default:
-	    break;
-
-	case op_variable:
-	    global( cond->str );
-	    break;
-
-	case op_kvariable:
-	    if ( ! cond->cfg->global_written )
-	    {
-		cond->cfg->global_written = 1;
-		global( cond->cfg->optionname );
-	    }
-	    break;
-	}
-    }
+    declare_condition_globals(cfg->cond);
 
     /*
      * Generate indentation.

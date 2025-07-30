@@ -39,8 +39,8 @@ $(KERNEL):	include/config.h include/tcb_layout.h $(SUBDIRS) $(OBJS)
 	@chmod a-x+r $@ $@.stripped
 	@echo Done. ; echo ""
 
-include/config.h:	$(wildcard xconfig/*.in)
-	$(MAKE) -C xconfig
+include/config.h:
+	@echo "Using pre-generated $@"
 
 .PHONY: src/version.o
 src/version.o:
