@@ -15,6 +15,7 @@
 #include <tracepoints.h>
 #include INC_ARCH(syscalls.h)
 #include INC_ARCH(memory.h)
+#include <stdint.h>
 
 #define IS_SEND		(snd_desc != (dword_t)~0)
 #define IS_RECEIVE	(rcv_desc != (dword_t)~0)
@@ -231,8 +232,8 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
 		    get_copy_area(from, to, (ptr_t) (to->msg_desc & ~0x3));
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
-		rcv_msg_limit = get_ipc_copy_limit((dword_t) rcv_msg, to);
-		check_limit((dword_t) &rcv_msg->dwords[0], rcv_msg_limit, to);
+                rcv_msg_limit = get_ipc_copy_limit((uintptr_t)rcv_msg, to);
+                check_limit((uintptr_t)&rcv_msg->dwords[0], rcv_msg_limit, to);
 #endif
 
 		if ( !rcv_msg )
@@ -267,7 +268,7 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
     /*
      * We have a long-send ipc.
      */
-    snd_msg = (memmsg_t *) (snd_desc & ~0x3);
+    snd_msg = (memmsg_t *)(intptr_t)(snd_desc & ~0x3);
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
     /*
@@ -276,10 +277,10 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
      */
     smallid_t small = from->space->smallid ();
     if (small.is_valid ())
-	snd_msg = (memmsg_t *) ((dword_t) snd_msg + small.offset ());
+        snd_msg = (memmsg_t *)((intptr_t)snd_msg + small.offset());
 
-    snd_msg_limit = get_ipc_copy_limit((dword_t) snd_msg, from);
-    check_limit((dword_t) &snd_msg->dwords[0], snd_msg_limit, from);
+    snd_msg_limit = get_ipc_copy_limit((uintptr_t)snd_msg, from);
+    check_limit((uintptr_t)&snd_msg->dwords[0], snd_msg_limit, from);
 #endif
 
     dword_t num_dwords_src = snd_msg->send_dope.msgdope.dwords;
@@ -313,17 +314,17 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
      */
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
-    check_limit((dword_t) &snd_msg->dwords[0] +
-		(num_dwords_src * sizeof(dword_t)) +
-		(num_strings_src * sizeof(stringdope_t)),
-		snd_msg_limit-3, from);
+    check_limit((uintptr_t)&snd_msg->dwords[0] +
+                (num_dwords_src * sizeof(dword_t)) +
+                (num_strings_src * sizeof(stringdope_t)),
+                snd_msg_limit-3, from);
 #endif
 
     if ( !rcv_msg )
     {
-	rcv_msg = (memmsg_t *)
-	    get_copy_area(from, to, (ptr_t) (to->msg_desc & ~0x3));
-	IFSMALL(rcv_msg_limit = get_ipc_copy_limit((dword_t) rcv_msg, to););
+        rcv_msg = (memmsg_t *)
+            get_copy_area(from, to, (ptr_t)(intptr_t)(to->msg_desc & ~0x3));
+        IFSMALL(rcv_msg_limit = get_ipc_copy_limit((uintptr_t)rcv_msg, to););
     }
 
     TRACEPOINT(LONG_LONG_IPC,
@@ -333,10 +334,10 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
 		      num_strings_src, rcv_msg->size_dope.msgdope.strings));
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
-    check_limit((dword_t) &rcv_msg->dwords[0] +
-		(rcv_msg->size_dope.msgdope.dwords * sizeof(dword_t)) +
-		(rcv_msg->size_dope.msgdope.strings * sizeof(stringdope_t)),
-		rcv_msg_limit-3, to);
+    check_limit((uintptr_t)&rcv_msg->dwords[0] +
+                (rcv_msg->size_dope.msgdope.dwords * sizeof(dword_t)) +
+                (rcv_msg->size_dope.msgdope.strings * sizeof(stringdope_t)),
+                rcv_msg_limit-3, to);
 #endif
 
     /*
@@ -418,12 +419,12 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
 		break;
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
-	    if ( (dword_t) snd_msg >= SMALL_SPACE_START &&
-		 (dword_t) snd_msg <  TCB_AREA )
-		p_src += small.offset ();
-	    else if ( (dword_t) rcv_msg >= SMALL_SPACE_START &&
-		      (dword_t) rcv_msg <  TCB_AREA )
-		p_dest += to->space->smallid ().offset ();
+            if ( (uintptr_t)snd_msg >= SMALL_SPACE_START &&
+                 (uintptr_t)snd_msg <  TCB_AREA )
+                p_src += small.offset ();
+            else if ( (uintptr_t)rcv_msg >= SMALL_SPACE_START &&
+                      (uintptr_t)rcv_msg <  TCB_AREA )
+                p_dest += to->space->smallid ().offset ();
 #endif
 
 	    TRACEPOINT(STRING_COPY_IPC,
@@ -436,8 +437,8 @@ void extended_transfer(tcb_t * from, tcb_t * to, dword_t snd_desc)
 	    copy_size = size_src < size_dest ? size_src : size_dest;
 
 #if defined(CONFIG_ENABLE_SMALL_AS)
-	    check_limit((dword_t) p_src  + copy_size, snd_msg_limit, from);
-	    check_limit((dword_t) p_dest + copy_size, rcv_msg_limit, to);
+            check_limit((uintptr_t)p_src  + copy_size, snd_msg_limit, from);
+            check_limit((uintptr_t)p_dest + copy_size, rcv_msg_limit, to);
 #endif
 
 // ???: May not work (depending on arch) if p_dest and p_src are not

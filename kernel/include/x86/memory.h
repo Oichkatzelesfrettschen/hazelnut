@@ -15,6 +15,7 @@
 
 #include INC_ARCH(config.h)
 #include INC_ARCH(mapping.h)
+#include <stdint.h>
 
 #if defined(ASSEMBLY)
 # define __DWORD_CAST
@@ -165,7 +166,7 @@ INLINE void set_current_pagetable(ptr_t pdir)
 void small_space_to_large (space_t *);
 int make_small_space (space_t *, byte_t);
 
-INLINE dword_t get_ipc_copy_limit(dword_t addr, tcb_t *receiver)
+INLINE uintptr_t get_ipc_copy_limit(uintptr_t addr, tcb_t *receiver)
 {
     if ( addr < SMALL_SPACE_START )
 	/* Sender is in small space.  Use receivers pagetab. */
@@ -181,7 +182,7 @@ INLINE dword_t get_ipc_copy_limit(dword_t addr, tcb_t *receiver)
 	return MEM_COPYAREA_END;
 }
 
-INLINE void check_limit(dword_t addr, dword_t limit, tcb_t *tcb)
+INLINE void check_limit(uintptr_t addr, uintptr_t limit, tcb_t *tcb)
 {
     if ( addr >= limit )
 	if ( limit <= SMALL_SPACE_START )

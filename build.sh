@@ -9,5 +9,10 @@ if [ ! -f kernel/xconfig/.config ]; then
   cp kernel/xconfig/defconfig kernel/xconfig/.config
 fi
 
-make -C kernel
-make -C apps
+if [ $# -eq 0 ]; then
+  make -C kernel
+  make -C apps
+else
+  make -C kernel "$@"
+  make -C apps "$@"
+fi
