@@ -9,5 +9,5 @@ if [ ! -f kernel/xconfig/.config ]; then
   cp kernel/xconfig/defconfig kernel/xconfig/.config
 fi
 
-make -C kernel
-make -C apps
+make -C kernel "$@"
+make -C apps "$@"

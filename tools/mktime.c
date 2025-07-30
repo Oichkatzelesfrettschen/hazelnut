@@ -4,7 +4,7 @@
 
 #define is_good_m(x) ((x) < (1 << M_BITS))
 
-#define best_m1(x)	(x)
+#define best_m1(x)    ((x))
 #define best_m2(x)	(is_good_m(x) ? (x) : best_m1((x)>>2))
 #define best_m3(x)	(is_good_m(x) ? (x) : best_m2((x)>>2))
 #define best_m4(x)	(is_good_m(x) ? (x) : best_m3((x)>>2))
@@ -20,7 +20,7 @@
 #define best_m14(x)	(is_good_m(x) ? (x) : best_m13((x)>>2))
 #define best_mant(x)	(is_good_m(x) ? (x) : best_m14((x)>>2))
 
-#define best_e1(x)	(1)
+#define best_e1(x)    ((void)(x), 1)
 #define best_e2(x)	(is_good_m(x) ?  2 : best_e1((x)>>2))
 #define best_e3(x)	(is_good_m(x) ? 3 : best_e2((x)>>2))
 #define best_e4(x)	(is_good_m(x) ? 4 : best_e3((x)>>2))
