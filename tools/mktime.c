@@ -4,7 +4,8 @@
 
 #define is_good_m(x) ((x) < (1 << M_BITS))
 
-#define best_m1(x)    ((x))
+#define best_m1(x)      ((x))
+
 #define best_m2(x)	(is_good_m(x) ? (x) : best_m1((x)>>2))
 #define best_m3(x)	(is_good_m(x) ? (x) : best_m2((x)>>2))
 #define best_m4(x)	(is_good_m(x) ? (x) : best_m3((x)>>2))
