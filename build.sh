@@ -16,3 +16,4 @@ else
   make -C kernel "$@"
   make -C apps "$@"
 fi
+
