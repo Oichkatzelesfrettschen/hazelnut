@@ -135,7 +135,7 @@ ifeq ($(ARCH), x86)
   ifneq ($(shell type -p i686-linux-gcc),)
 PREFIX		=i686-linux-
   endif
-CFLAGS		+= -Wall -Wno-format -O9 -fomit-frame-pointer -freg-struct-return
+CFLAGS		+= -Wall -Wno-format -O9 -fomit-frame-pointer -freg-struct-return -m32
 endif
 
 ######################################################################
