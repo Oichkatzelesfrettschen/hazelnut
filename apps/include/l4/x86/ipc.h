@@ -129,9 +129,9 @@ l4_ipc_call(l4_threadid_t dest,
 	"=D" (*rcv_dword2)                        /* EDI, 3       */
 	:
 	"c" (timeout),				/* ECX, 4 	*/
-	"D" (((int)rcv_msg) & (~L4_IPC_OPEN_IPC)),/* EDI, 5, rcv msg -> ebp */
+	"D" (((unsigned long)rcv_msg) & (~L4_IPC_OPEN_IPC)),/* EDI, 5, rcv msg -> ebp */
 	"S" (dest),				/* ESI, 6, dest	  */
-	"0" (((int)snd_msg) & (~L4_IPC_DECEIT)),	/* EAX, 0  	*/
+	"0" (((unsigned long)snd_msg) & (~L4_IPC_DECEIT)),	/* EAX, 0  	*/
 	"1" (&dw[0])				/* EDX, 1,	*/
 #ifdef SCRATCH_MEMORY
 	: "memory"
@@ -176,9 +176,9 @@ l4_ipc_reply_and_wait(l4_threadid_t dest,
       "=S" (*src)                               /* ESI, 4       */
       :
       "c" (timeout),				/* ECX, 5	*/
-      "3" (((int)rcv_msg) | L4_IPC_OPEN_IPC),	/* edi, 6  -> ebp rcv_msg */
+      "3" (((unsigned long)rcv_msg) | L4_IPC_OPEN_IPC),	/* edi, 6  -> ebp rcv_msg */
       "4" (dest.raw),				/* ESI ,4	*/
-      "0" (((int)snd_msg) & (~L4_IPC_DECEIT)),	/* EAX, 0 	*/
+      "0" (((unsigned long)snd_msg) & (~L4_IPC_DECEIT)),	/* EAX, 0 	*/
       "1" (dw)				        /* EDX, 1 	*/
       );
 #endif
@@ -222,7 +222,7 @@ l4_ipc_send(l4_threadid_t dest,
       "D" (snd_dword2),			        /* EDI, 4	*/
       "S" (dest.raw),			        /* ESI, 5	*/
       "i" (L4_IPC_NIL_DESCRIPTOR),		/* Int, 6 	*/
-      "0" (((int)snd_msg) & (~L4_IPC_DECEIT))	/* EAX, 0 	*/
+      "0" (((unsigned long)snd_msg) & (~L4_IPC_DECEIT))	/* EAX, 0 	*/
 #ifdef SCRATCH_MEMORY
       : "memory"
 #endif /* SCRATCH_MEMORY */
@@ -259,7 +259,7 @@ l4_ipc_wait(l4_threadid_t *src,
       :
       "c" (timeout),				/* ECX, 5 	*/
       "0" (L4_IPC_NIL_DESCRIPTOR),		/* EAX, 0 	*/
-      "2" (((int)rcv_msg) | L4_IPC_OPEN_IPC)	/* EBX, 2, rcv_msg -> EBP */
+      "2" (((unsigned long)rcv_msg) | L4_IPC_OPEN_IPC)	/* EBX, 2, rcv_msg -> EBP */
 
 #ifdef SCRATCH_MEMORY
       :"memory"
@@ -298,7 +298,7 @@ l4_ipc_receive(l4_threadid_t src,
       "c" (timeout),				/* ECX, 4 	*/
       "S" (src.raw),				/* ESI, 6 	*/
       "0" (L4_IPC_NIL_DESCRIPTOR),		/* EAX, 0 	*/
-      "2" (((int)rcv_msg) & (~L4_IPC_OPEN_IPC)) /* EBX, 2, rcv_msg -> EBP */
+      "2" (((unsigned long)rcv_msg) & (~L4_IPC_OPEN_IPC)) /* EBX, 2, rcv_msg -> EBP */
       :
 #ifdef SCRATCH_MEMORY
        "memory"
